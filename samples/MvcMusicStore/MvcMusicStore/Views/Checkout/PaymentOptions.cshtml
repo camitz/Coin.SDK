@@ -1,0 +1,75 @@
+﻿@using System.Configuration
+@using Coin.SDK
+@model dynamic
+
+@{
+    ViewBag.Title = "Payment options";
+}
+      <span id="cocoin_root"></span>
+        <script type="text/javascript">
+            /* DON'T EDIT BELOW THIS LINE */
+            (function () {
+                var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+                dsq.src = '@(ConfigurationManager.AppSettings[Constants.CocoinSiteUrl])sdk/payment.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+
+<h2>Quick payment via order http request</h2>
+None of these require the use of the Cocoin API at any point. Just a bit of javascript to generate the button.
+
+<h3 style="margin-top: 30px">Specified order</h3>
+This specifies the amount, the email of the receiver, an order reference, the due date and the mercant ID.<br/>
+It's unsigned and can be tampered/spammed/spoofed. <br/>
+
+
+<span class="cocoin_pay" data-cocoin-args='{
+                    merchant_id: "@(ConfigurationManager.AppSettings["CocoinMerchantID"])",
+                    order_ref: "@ViewBag.order_ref",
+                    amount: "@ViewBag.amount",
+                    email: "@ViewBag.email",
+                    due_date: "@ViewBag.due_date"
+            }'></span>
+
+<h3 style="margin-top: 30px">Signed specified order</h3>
+Same as above but with a hmac.<br/>
+
+
+<span class="cocoin_pay" data-cocoin-args='{
+                    merchant_id: "@(ConfigurationManager.AppSettings["CocoinMerchantID"])",
+                    order_ref: "@ViewBag.order_ref",
+                    amount: "@ViewBag.amount",
+                    email: "@ViewBag.email",
+                    due_date: "@ViewBag.due_date",
+                    consumer_key: "@(ConfigurationManager.AppSettings["CocoinConsumerKeyID"])",
+                    timestamp: "@ViewBag.timestamp",
+                    nonce: "@ViewBag.nonce",
+                    signature: "@ViewBag.signature1"
+            }'></span>
+
+
+
+
+
+
+<h3 style="margin-top: 30px">Blank order</h3>
+Essentially the same as above but only the order reference and the merchant ID is specified.<br/>
+The recipient, the amount and due_date are left open. These can be tampered with anyway.<br/>
+
+<span class="cocoin_pay" data-cocoin-args='{
+                    merchant_id: "@(ConfigurationManager.AppSettings["CocoinMerchantID"])",
+                    order_ref: "@ViewBag.order_ref"
+            }'></span>        
+
+
+<h3 style="margin-top: 30px">Signed blank order</h3>
+Same as above but with a hmac<br/>
+
+<span class="cocoin_pay" data-cocoin-args='{
+                    merchant_id: "@(ConfigurationManager.AppSettings["CocoinMerchantID"])",
+                    order_ref: "@ViewBag.order_ref",
+                    consumer_key: "@(ConfigurationManager.AppSettings["CocoinConsumerKeyID"])",
+                    timestamp: "@ViewBag.timestamp",
+                    nonce: "@ViewBag.nonce",
+                    signature: "@ViewBag.signature2"
+            }'></span>        

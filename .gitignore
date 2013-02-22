@@ -7,6 +7,9 @@
 .metadata
 bin/
 tmp/
+obj/
+.Resharper*/
+.svn/
 *.tmp
 *.bak
 *.swp
