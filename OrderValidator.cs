@@ -17,15 +17,49 @@ namespace Coin.SDK
             get { return _hierarchicalAttributeGetter; }
         }
 
-        public bool Validate(IOrder order)
+        public bool Validate(IBlankOrder order)
         {
             string[] messages;
             return Validate(order, out messages);
         }
 
-        public bool Validate(IOrder order, out string[] messages)
+        public bool Validate(IBlankOrder order, out string[] messages)
         {
-            foreach (var propertyInfo in order.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            _failed = ValidateProperties(order, _messages);
+
+            var blankOrder = order as IBlankOrder;
+
+            if (!(order.Is<ICompleteOrder>()))
+            {
+                if (blankOrder.IsBlankAmount.HasValue && !blankOrder.IsBlankAmount.Value && !blankOrder.Amount.HasValue)
+                {
+                    _failed = true;
+                    _messages.Add("IsBlankAmount is false but Amount is not set.");
+                }
+
+                if (blankOrder.IsBlankCustomer.HasValue && !blankOrder.IsBlankCustomer.Value && blankOrder.Customer == null)
+                {
+                    _failed = true;
+                    _messages.Add("IsBlankCustomer is false but Customer is not set.");
+                }
+
+                if (blankOrder.IsBlankAmount.HasValue && !blankOrder.IsBlankAmount.Value && blankOrder.IsBlankCustomer.HasValue && !blankOrder.IsBlankCustomer.Value)
+                {
+                    _failed = true;
+                    _messages.Add("Overspecified IBlankOrder. By fixing both Amount and Customer (IsBlankAmount and IsBlankCustomer are both false) you have overspecified your blank order." +
+                        " You should wrap this order in a CompleteOrder.");
+                }
+            }
+
+            messages = _messages.ToStringArray();
+
+            return !_failed;
+        }
+
+        private static bool ValidateProperties(object specimen, MessageHandler _messages)
+        {
+            var failed = false;
+            foreach (var propertyInfo in specimen.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
                 IEnumerable<ValidationAttribute> t;
                 if ((t = HierarchicalAttributeGetter.GetAttributes<ValidationAttribute>(propertyInfo)).Any())
@@ -33,29 +67,22 @@ namespace Coin.SDK
                     foreach (var validationAttribute in t)
                     {
                         string message;
-                        if(!validationAttribute.Validate(propertyInfo, order, out message))
+                        if (!validationAttribute.Validate(propertyInfo, specimen, out message))
                         {
-                            _failed = true;
+                            failed = true;
                             _messages.Add(message);
-                            
                         }
                     }
                 }
-            }
-
-            if (!(order is ISpecifiedOrder))
-            {
-                var o = order as IBlankOrder;
-                if (o.Amount.HasValue && !string.IsNullOrEmpty(o.Email))
+                if (!(propertyInfo.PropertyType.IsPrimitive || propertyInfo.PropertyType.IsValueType || Nullable.GetUnderlyingType(propertyInfo.PropertyType) != null || propertyInfo.PropertyType == typeof(string) || propertyInfo.PropertyType == typeof(Decimal)))
                 {
-                    _failed = true;
-                    _messages.Add("Overspecified IBlankOrder. By setting both Amount and Email the IBlankOrder has become overspecified. You should use SpecifiedOrder or SignedSpecifiedOrder.");
+                    var o = propertyInfo.GetValue(specimen, null);
+                    if (o != null)
+                        failed = ValidateProperties(o, _messages) || failed;
                 }
+
             }
-
-            messages = _messages.ToStringArray();
-
-            return !_failed;
+            return failed;
         }
     }
 }

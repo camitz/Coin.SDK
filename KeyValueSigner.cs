@@ -30,6 +30,8 @@ namespace Coin.SDK
                                             .ThenBy(x => x.Value.ToString(), StringComparer.OrdinalIgnoreCase)
                                             .Select(x => string.Format(CultureInfo.InvariantCulture, "{0}={1}", x.Key, x.Value)));
 
+            log4net.LogManager.GetLogger(typeof(KeyValueSigner)).Debug("Signaturestring: " + s);
+
             byte[] keyByte = new ASCIIEncoding().GetBytes(key);
 
             var hmacsha256 = new HMACSHA256(keyByte);
@@ -42,7 +44,13 @@ namespace Coin.SDK
 
         public void Add(string key, object value)
         {
-            _stringParts.Add(key, value);
+            try
+            {
+                _stringParts.Add(key, value);
+            }
+            catch (ArgumentException e)
+            {
+            }
         }
 
         public void Reset()

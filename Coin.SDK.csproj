@@ -33,9 +33,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\_martin\Friskus\packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>D:\cocoin\MvcMusicStore-Completed\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <HintPath>D:\_martin\Friskus\packages\Newtonsoft.Json.5.0.2\lib\net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -52,20 +56,27 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="APIClientFactory.cs" />
-    <Compile Include="BlankOrder.cs" />
+    <Compile Include="Order.cs" />
+    <Compile Include="DateTimeExtensions.cs" />
     <Compile Include="HierarchicalAttributeGetter.cs" />
     <Compile Include="Html.cs" />
+    <Compile Include="Model\ICustomer.cs" />
+    <Compile Include="Model\IOrder.cs" />
     <Compile Include="Model\OrderBase.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="MessageHandler.cs" />
     <Compile Include="Model\OrderResponseModel.cs" />
     <Compile Include="Model\OrderStatusModel.cs" />
     <Compile Include="Model\OrderUpdateModel.cs" />
+    <Compile Include="Model\PropertyFormatter.cs" />
     <Compile Include="OrderClient.cs" />
+    <Compile Include="OrderDecorator.cs" />
     <Compile Include="OrderSigner.cs" />
     <Compile Include="OrderValidator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyNameConventionConverter.cs" />
+    <Compile Include="SignedOrder.cs" />
+    <Compile Include="CompleteOrder.cs" />
     <Compile Include="ValidationAttributes.cs" />
     <Compile Include="KeyValueSigner.cs" />
   </ItemGroup>

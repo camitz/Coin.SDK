@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Globalization;
 using System.Text;
 using System.Web;
@@ -11,7 +12,14 @@ namespace Coin.SDK
     {
         public static IHtmlString Script(string scriptSourceUrl = null)
         {
-            scriptSourceUrl = scriptSourceUrl ?? "https://www.cocoin.com/sdk/payment.js";
+            if (HttpContext.Current != null)
+            {
+                if (HttpContext.Current.Items["CocoinScriptWritten"] != null)
+                    return null;
+                HttpContext.Current.Items["CocoinScriptWritten"] = true;
+            }
+
+            scriptSourceUrl = scriptSourceUrl ?? ((ConfigurationManager.AppSettings[Constants.CocoinSiteUrl] ?? "https://www.cocoin.com") + "/sdk/payment.js");
 
             var t = new StringBuilder();
             t.AppendLine("<span id='cocoin_root'></span>");
@@ -28,20 +36,27 @@ namespace Coin.SDK
             return new HtmlString(t.ToString());
         }
 
-        public static IHtmlString PaymentButton(IOrder order)
+        public static IHtmlString PaymentButton(IBlankOrder order)
         {
+
             string[] messages;
             if (!order.Validate(out messages))
                 throw new InvalidOperationException("Order did not validate when building payment button: " + string.Join("\n", messages));
 
-            var data = new List<string>();
-            order.FormatProperties((key, value) => data.Add(string.Format(CultureInfo.InvariantCulture, "{0}: '{1}'", key, value)));
+            var data = new Dictionary<string, string>();
+            order.FormatProperties((key, value) => data.Add(key, string.Format(CultureInfo.InvariantCulture, "{0}: '{1}'", key, value)));
 
             var signed = order as ISignedOrder;
-            if(signed!=null)
-                data.Add(string.Format(CultureInfo.InvariantCulture, "{0}: '{1}'", "signature", signed.Signature));
+            if (signed != null)
+                data.Add("signature", string.Format(CultureInfo.InvariantCulture, "{0}: '{1}'", "signature", signed.Signature));
 
-            var tab = "<span class='cocoin_pay' data-cocoin-args=\"{" + string.Join(", ", data) + "}\"></span>";
+            var tab = "<span class='cocoin_pay' data-cocoin-args=\"{" + string.Join(", ", data.Values) + "}\"></span>";
+
+            if (HttpContext.Current != null)
+            {
+                if (HttpContext.Current.Items["CocoinScriptWritten"] == null)
+                    tab = Script() + "\n" + tab;
+            }
 
             var html = new HtmlString(tab);
             return html;

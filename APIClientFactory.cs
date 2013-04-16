@@ -18,8 +18,8 @@ namespace Coin.SDK
             }
 
             return new OrderClient(merchantID,
-                                   ConfigurationManager.AppSettings[Constants.CocoinConsumerKeyID],
-                                   ConfigurationManager.AppSettings[Constants.CocoinConsumerSecretKey],
+                                   ConfigurationManager.AppSettings[Constants.CocoinConsumerKey],
+                                   ConfigurationManager.AppSettings[Constants.CocoinConsumerSecret],
                                    ConfigurationManager.AppSettings[Constants.CocoinApiUrl] ?? "https://www.cocoin.com");
         }
     }

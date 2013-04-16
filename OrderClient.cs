@@ -26,9 +26,9 @@ namespace Coin.SDK
                 new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public Task<OrderResponseModel> PutOrderAsync(IOrder order)
+        public Task<OrderResponseModel> PutOrderAsync(IBlankOrder order)
         {
-            var signedOrder = order.ToSignedOrder();
+            var signedOrder = new SignedOrder(order);
 
             order.MerchantID = _merchantID ?? order.MerchantID;
 
@@ -48,7 +48,7 @@ namespace Coin.SDK
                                                                      })).Result;
         }
 
-        public OrderResponseModel PutOrder(IOrder order)
+        public OrderResponseModel PutOrder(IBlankOrder order)
         {
             try
             {

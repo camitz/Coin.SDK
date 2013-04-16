@@ -16,7 +16,7 @@ namespace Coin.SDK
             if (value != null)
                 return true;
 
-            message = Message ?? string.Format("{0} is a required property for {1}", propertyInfo.Name, o.GetType().Name);
+            message = Message ?? string.Format("{0} is a required property for {1}.", propertyInfo.Name, o.GetType().Name);
             return false;
         }
     }
@@ -35,7 +35,7 @@ namespace Coin.SDK
             if (regex.IsMatch(value.ToString()))
                 return true;
 
-            message = Message ?? string.Format("{0} is a required property for {1}", propertyInfo.Name, o.GetType().Name);
+            message = Message ?? string.Format("{0} is malformed in {1}.", propertyInfo.Name, o.GetType().Name);
             return false;
         }
     }

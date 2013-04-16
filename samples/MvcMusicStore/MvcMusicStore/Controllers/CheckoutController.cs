@@ -8,6 +8,7 @@ using System.Web.Mvc;
 using Coin.SDK;
 using Coin.SDK.Model;
 using MvcMusicStore.Models;
+using Order = MvcMusicStore.Models.Order;
 
 namespace MvcMusicStore.Controllers
 {
@@ -53,13 +54,13 @@ namespace MvcMusicStore.Controllers
 
                     try
                     {
-                        var coinorder = new SignedSpecifiedOrder
+                        var coinorder = new SignedOrder(new CompleteOrder(new Coin.SDK.Order
                                             {
                                                 OrderRef = order.OrderId.ToString(),
                                                 Amount = order.Total,
-                                                Email = values["Email"],
+                                                Customer = new CustomerByEmail(values["Email"]),
                                                 DueDate = HttpContext.Timestamp.AddMonths(1)
-                                            };
+                                            }));
 
                         var client = APIClientFactory.CreateOrderClient();
                         var response = client.PutOrder(coinorder);
@@ -78,7 +79,7 @@ namespace MvcMusicStore.Controllers
                 }
 
                 //SDK
-                ViewBag.BlankOrder = new BlankOrder
+                ViewBag.BlankOrder = new Coin.SDK.Order
                                              {
                                                  MerchantID =
                                                      Int32.Parse(
@@ -86,39 +87,47 @@ namespace MvcMusicStore.Controllers
                                                  OrderRef = order.OrderId.ToString()
                                              };
 
-                var signedBlankOrder = new SignedBlankOrder
+                var signedBlankOrder = new SignedOrder(new Coin.SDK.Order
                                                         {
                                                             //MerchantID is collected automatically from AppSettings
                                                             //MerchantID =
                                                             //    Int32.Parse(
                                                             //        ConfigurationManager.AppSettings["CocoinMerchantID"]),
                                                             OrderRef = order.OrderId.ToString()
-                                                        };
+                                                        });
 
                 signedBlankOrder.Sign();
                 ViewBag.SignedBlankOrder = signedBlankOrder;
 
-                ViewBag.SpecifiedOrder = new SpecifiedOrder
-                                             {
-                                                 MerchantID =
-                                                     Int32.Parse(
-                                                         ConfigurationManager.AppSettings["CocoinMerchantID"]),
-                                                 OrderRef = order.OrderId.ToString(),
-                                                 Amount = order.Total,
-                                                 Email = values["Email"],
-                                                 DueDate = HttpContext.Timestamp.AddMonths(1)
-                                             };
+                ViewBag.SpecifiedOrder = new CompleteOrder(new Coin.SDK.Order
+                                                               {
+                                                                   MerchantID =
+                                                                       Int32.Parse(
+                                                                           ConfigurationManager.AppSettings[
+                                                                               "CocoinMerchantID"]),
+                                                                   OrderRef = order.OrderId.ToString(),
+                                                                   Amount = order.Total,
+                                                                   Customer = new CustomerByEmail(values["Email"]),
+                                                                   DueDate = HttpContext.Timestamp.AddMonths(1)
+                                                               });
+                
 
-                var signedSpecifiedOrder = new SignedSpecifiedOrder
-                                                                {
-                                                                    MerchantID =
-                                                                        Int32.Parse(
-                                                                            ConfigurationManager.AppSettings["CocoinMerchantID"]),
-                                                                    OrderRef = order.OrderId.ToString(),
-                                                                    Amount = order.Total,
-                                                                    Email = values["Email"],
-                                                                    DueDate = HttpContext.Timestamp.AddMonths(1)
-                                                                };
+                var signedSpecifiedOrder = new SignedOrder(new CompleteOrder(new Coin.SDK.Order
+                                                                                 {
+                                                                                     MerchantID =
+                                                                                         Int32.Parse(
+                                                                                             ConfigurationManager.
+                                                                                                 AppSettings[
+                                                                                                     "CocoinMerchantID"]),
+                                                                                     OrderRef = order.OrderId.ToString(),
+                                                                                     Amount = order.Total,
+                                                                                     Customer =
+                                                                                         new CustomerByEmail(
+                                                                                         values["Email"]),
+                                                                                     DueDate =
+                                                                                         HttpContext.Timestamp.AddMonths
+                                                                                         (1)
+                                                                                 }));
                 signedSpecifiedOrder.Sign(); //Keys collected from web.config/appsettings
 
                 ViewBag.SignedSpecifiedOrder = signedSpecifiedOrder;
@@ -140,23 +149,23 @@ namespace MvcMusicStore.Controllers
                 ViewBag.nonce = nonce;
 
                 var stringToSign = "amount=" + order.Total.ToString() + "&" +
-                                   "consumer_key=" + ConfigurationManager.AppSettings["CocoinConsumerKeyID"] + "&" +
+                                   "consumer_key=" + ConfigurationManager.AppSettings["CocoinConsumer"] + "&" +
                                    "due_date=" + HttpContext.Timestamp.AddMonths(1).ToShortDateString() + "&" +
                                    "email=" + values["Email"] + "&" +
-                                   "merchant_id=" + ConfigurationManager.AppSettings["CocoinMerchantID"] + "&" +
+                                   "merchant_id=" + ConfigurationManager.AppSettings["CocoinMerchant"] + "&" +
                                    "nonce=" + nonce + "&" +
                                    "order_ref=" + order.OrderId.ToString() + "&" +
                                    "timestamp=" + ts;
 
-                byte[] keyByte = new ASCIIEncoding().GetBytes(ConfigurationManager.AppSettings["CocoinConsumerSecretKey"]);
+                byte[] keyByte = new ASCIIEncoding().GetBytes(ConfigurationManager.AppSettings["CocoinConsumerSecret"]);
 
                 var hmacsha256 = new HMACSHA256(keyByte);
 
                 ViewBag.signature1 = HttpUtility.UrlEncode(Convert.ToBase64String(hmacsha256.ComputeHash(new UTF8Encoding().GetBytes(stringToSign))));
 
                 stringToSign =
-                    "consumer_key=" + ConfigurationManager.AppSettings["CocoinConsumerKeyID"] + "&" +
-                    "merchant_id=" + ConfigurationManager.AppSettings["CocoinMerchantID"] + "&" +
+                    "consumer_key=" + ConfigurationManager.AppSettings["CocoinConsumer"] + "&" +
+                    "merchant_id=" + ConfigurationManager.AppSettings["CocoinMerchant"] + "&" +
                     "nonce=" + nonce + "&" +
                     "order_ref=" + order.OrderId.ToString() + "&" +
                     "timestamp=" + ts;
