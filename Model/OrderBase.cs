@@ -1,7 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
-using System.Reflection;
+using Coin.SDK.Services;
 
 namespace Coin.SDK.Model
 {
@@ -27,6 +27,7 @@ namespace Coin.SDK.Model
         }
 
         public string OrderRef { get; set; }
+        public string GroupRef { get; set; }
 
 
         public void FormatProperties(Action<string, object> action)
@@ -34,11 +35,11 @@ namespace Coin.SDK.Model
             PropertyFormatter.FormatProperties(this, action);
         }
 
-        public string FormatProperties(Func<string, object, string> func)
+        public string FormatProperties(Func<string, object, string> func, string separator = "")
         {
-            var s = string.Empty;
-            FormatProperties((key, value) => { s += func(key, value); });
-            return s;
+            var s = new List<string>();
+            FormatProperties((key, value) => { s.Add(func(key, value)); });
+            return string.Join(separator, s);
         }
 
     }

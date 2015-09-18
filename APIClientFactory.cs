@@ -7,6 +7,11 @@ namespace Coin.SDK
     {
         public static OrderClient CreateOrderClient()
         {
+            return CreateOrderClient(null);
+        }
+
+        public static OrderClient CreateOrderClient(string accessToken = null)
+        {
             int? merchantID = null;
             try
             {
@@ -14,13 +19,19 @@ namespace Coin.SDK
             }
             catch (Exception)
             {
-                
+
             }
 
             return new OrderClient(merchantID,
-                                   ConfigurationManager.AppSettings[Constants.CocoinConsumerKey],
-                                   ConfigurationManager.AppSettings[Constants.CocoinConsumerSecret],
-                                   ConfigurationManager.AppSettings[Constants.CocoinApiUrl] ?? "https://www.cocoin.com");
+                                   ConfigurationManager.AppSettings[Constants.CocoinApiBaseUrl] ?? Constants.CocoinDefaultApiBaseUrl,
+                                   accessToken);
         }
+
+        public static OrderClient CreateOrderClient(int merchantID, string apiBaseUri=null)
+        {
+            return new OrderClient(merchantID,
+                                   apiBaseUri ?? ConfigurationManager.AppSettings[Constants.CocoinApiBaseUrl] ?? Constants.CocoinDefaultApiBaseUrl, null);
+        }
+
     }
 }

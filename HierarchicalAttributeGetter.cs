@@ -22,5 +22,22 @@ namespace Coin.SDK
 
             return l;
         }
+
+        public static IEnumerable<Attribute> GetAttributes(PropertyInfo propertyInfo, Type includeAttributeType)
+        {
+            var l = new List<Attribute>();
+            l.AddRange(Attribute.GetCustomAttributes(propertyInfo, includeAttributeType, true));
+
+            foreach (var @interface in propertyInfo.ReflectedType.GetInterfaces())
+            {
+                var p = @interface.GetProperty(propertyInfo.Name);
+                if (p != null)
+                {
+                    l.AddRange(Attribute.GetCustomAttributes(p, includeAttributeType, true));
+                }
+            }
+
+            return l;
+        }
     }
 }

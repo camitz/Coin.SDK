@@ -1,37 +1,28 @@
+using Coin.SDK.Signing;
+using Newtonsoft.Json;
+
 namespace Coin.SDK.Model
 {
     public interface ICustomer
     {
-        bool? IsBlankCustomer { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [IncludeInSignature]
+        string Firstname { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [IncludeInSignature]
+        string Lastname { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [IncludeInSignature]
+        string Phonenumber { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [IncludeInSignature]
+        string Address { get; set; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [IncludeInSignature]
+        string SocialIdNumber { get; set; }
     }
-
-
-    public class CustomerByEmail : ICustomer
-    {
-        public CustomerByEmail(string email, bool? isBlankCustomer=null)
-        {
-            Email = email;
-            IsBlankCustomer = isBlankCustomer;
-        }
-
-
-        public CustomerByEmail()
-        {
-        }
-
-        [Email]
-        public string Email { get; set; }
-
-        [Ignore]
-        public bool? IsBlankCustomer { get; set; }
-    }
-
-    class CustomerByFacebook : ICustomer
-    {
-        public long FacebookID { get; set; }
-
-        [Ignore]
-        public bool? IsBlankCustomer { get; set; }
-    }
-
 }

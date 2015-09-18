@@ -8,19 +8,24 @@ namespace Coin.SDK
     {
         public static string ToOauthStyle(string name)
         {
+            var input = new string(name.Reverse().ToArray());
             var ss = new List<string>();
-            var regex = new Regex(@"^([a-z]*)?([A-Z]+$|[A-Z][a-z]+|[A-Z]+(?=[A-Z]))*");
-            MatchCollection matches = regex.Matches(name);
 
-            if (!string.IsNullOrEmpty(matches[0].Groups[1].Value))
-                ss.Add(matches[0].Groups[1].Value);
+            Regex myRegex = new Regex(@"[a-z]+[A-Z]?|[A-Z]+|\d+", RegexOptions.None);
+            string strTargetString = input;
 
-            ss.AddRange(from Capture s in matches[0].Groups[2].Captures select s.Value);
+            MatchCollection matchCollection = myRegex.Matches(strTargetString);
+            foreach (Match myMatch in matchCollection)
+            {
+                if (myMatch.Success)
+                {
+                   ss.Add(myMatch.Value);
+                }
+            }
 
-            if (matches[0].Groups[3].Success)
-                ss.Add(matches[0].Groups[3].Value);
 
-            return string.Join("_", ss.Select(x=>x.ToLowerInvariant()));
+            string output = string.Join("_", ss.Select(x => Regex.Replace(new string(x.ToLowerInvariant().Reverse().ToArray()), @"[_\[\]]", "")).Reverse());
+            return output;
         }
     }
 }

@@ -1,3 +1,4 @@
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -8,42 +9,44 @@ namespace Coin.SDK.Model
         public string CustomerRedirectUrl { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
-        public ResponseStatus Status { get; set; }
+        public ResponseState State { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
-        public OrderStatus OrderStatus { get; set; }
+        public OrderState OrderState { get; set; }
         public int OrderID { get; set; }
         public string Message { get; set; }
 
         public string OrderRef { get; set; }
+
+        public string AccessToken { get; set; }
     }
 
 
-    public enum ResponseStatus
+    public enum ResponseState
     {
         Success
     }
 
-    public enum OverdueStatus
+    public enum OverdueState
     {
         NotOverdue,
-        OverduePayment,
+        OverduePaymentMade,
         Overdue
     }
 
-    public enum PaymentStatus
+    public enum PaymentState
     {
         NoPaymentMade,
         PaidInFull,
         PartialPayment
     }
 
-    public enum OrderStatus
+    public enum OrderState
     {
         Created,
         PendingSpecification,
         PendingAccept,
         Accepted,
-        Cancelled,
+        Canceled,
     }
 }

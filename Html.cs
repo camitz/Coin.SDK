@@ -43,12 +43,7 @@ namespace Coin.SDK
             if (!order.Validate(out messages))
                 throw new InvalidOperationException("Order did not validate when building payment button: " + string.Join("\n", messages));
 
-            var data = new Dictionary<string, string>();
-            order.FormatProperties((key, value) => data.Add(key, string.Format(CultureInfo.InvariantCulture, "{0}: '{1}'", key, value)));
-
-            var signed = order as ISignedOrder;
-            if (signed != null)
-                data.Add("signature", string.Format(CultureInfo.InvariantCulture, "{0}: '{1}'", "signature", signed.Signature));
+            var data = order.FormatPropertiesForRequest();
 
             var tab = "<span class='cocoin_pay' data-cocoin-args=\"{" + string.Join(", ", data.Values) + "}\"></span>";
 

@@ -8,7 +8,7 @@ namespace Coin.SDK.Model
         public int OrderID { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
-        public ResponseStatus Status { get; set; }
+        public ResponseState State { get; set; }
 
         public string Message { get; set; }
     }
